@@ -10,8 +10,8 @@ using namespace std;
 
 #include <iostream>
 
-#include "shader.h"
-#include "texture.h"
+#include "../Headers/shader.h"
+#include "../Headers/texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -129,11 +129,11 @@ int main()
 
     // load texture
     // ------------
-    Texture texture("../hello_triangle/container.jpg");
+    Texture texture("../Textures/container.jpg");
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("../hello_triangle/shader.vs", "../hello_triangle/shader.fs");
+    Shader ourShader("../Shaders/shader.vs", "../Shaders/shader.fs");
     ourShader.use();
 
     // render loop
