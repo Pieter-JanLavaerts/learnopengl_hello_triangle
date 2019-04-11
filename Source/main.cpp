@@ -129,11 +129,11 @@ int main()
 
     // load texture
     // ------------
-    Texture texture("../hello_triangle/Textures/container.jpg");
+    Texture texture("Textures/container.jpg");
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("../hello_triangle/Shaders/shader.vs", "../hello_triangle/Shaders/shader.fs");
+    Shader ourShader("Shaders/shader.vs", "Shaders/shader.fs");
     ourShader.use();
 
     // render loop
