@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(hello_triangle)
-add_executable(${PROJECT_NAME} "Source/main.cpp" "Source/glad.c" "Source/shader.cpp" "Source/texture.cpp")
+add_executable(${PROJECT_NAME} "Source/main.cpp" "Source/glad.c" "Source/shader.cpp" "Source/texture.cpp" Source/camera.cpp Source/camera.h)
 
 add_definitions("-fPIC")
 
