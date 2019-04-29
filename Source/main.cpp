@@ -144,11 +144,11 @@ int main()
 
     // load texture
     // ------------
-    Texture texture("Textures/container.jpg");
+    Texture texture("../Textures/container.jpg");
 
     // build and compile our shader program
     // ------------------------------------
-    Shader ourShader("Shaders/shader.vs", "Shaders/shader.fs");
+    Shader ourShader("../Shaders/shader.vs", "../Shaders/shader.fs");
     ourShader.use();
 
     // pass projection matrix to shader (as projection matrix rarely changes there's no need to do this per frame)
