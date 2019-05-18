@@ -35,6 +35,7 @@ float lastFrame = 0.0f;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+//Display list
 int main()
 {
     // glfw: initialize and configure
@@ -172,6 +173,9 @@ int main()
     lightingShader.setInt("matetrial.diffuse", 0);
     lightingShader.setInt("matetrial.specular", 1);
 
+    init(cubePositions, lightingShader);
+    cout << renderBoxesDisplay;
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -223,17 +227,10 @@ int main()
 
         //render boxes
         glBindVertexArray(cubeVAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            //calculate the model matrix for each object and pass it to the shader before drawing
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 30.0f * (i+1) * (glfwGetTime()+0.5*glm::tan(glfwGetTime()+i));
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            lightingShader.setMat4("model", model);
+        init(cubePositions, lightingShader);
+        glCallList(renderBoxesDisplay);
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+
 
         // render the lamp
         lampShader.use();
