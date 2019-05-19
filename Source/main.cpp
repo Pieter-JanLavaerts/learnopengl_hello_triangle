@@ -109,7 +109,64 @@ int main()
     Shader lampShader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
 
     //Loading our models
-    Model ourModel("../Models/nanosuit/nanosuit.obj");
+    Model rock("../Models/rock/rock.obj");
+    Model planet("../Models/planet/planet.obj");
+
+    unsigned int amount = 1000;
+    glm::mat4* modelMatrices;
+    modelMatrices = new glm::mat4[amount];
+    srand(glfwGetTime()); // initialize random seed
+    float radius = 50.0;
+    float offset = 2.5f;
+    for (unsigned int i = 0; i < amount; i++)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        // 1. translation: displace along circle with 'radius' in range [-offset, offset]
+        float angle = (float)i / (float)amount * 360.0f;
+        float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float x = sin(angle) * radius + displacement;
+        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float y = displacement * 0.4f; // keep height of asteroid field smaller compared to width of x and z
+        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float z = cos(angle) * radius + displacement;
+        model = glm::translate(model, glm::vec3(x, y, z));
+
+        // 2. scale: Scale between 0.05 and 0.25f
+        float scale = (rand() % 20) / 100.0f + 0.05;
+        model = glm::scale(model, glm::vec3(scale));
+
+        // 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
+        float rotAngle = (rand() % 360);
+        model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // 4. now add to list of matrices
+        modelMatrices[i] = model;
+    }
+
+    int amount2 = 1000;
+    glm::mat4* modelMatrices2;
+    int modelMatrices2Dist[amount2];
+    modelMatrices2 = new glm::mat4[amount];
+    srand(glfwGetTime()); // initialize random seed
+    for (unsigned int i = 0; i < amount2; i++)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        // 1. translation: displace along circle with 'radius' in range [-offset, offset]
+        model = glm::translate(model, glm::vec3((float) (rand() % 100 - 50), (float) (rand() % 100 - 50), -1.0f*i+((float)amount2/2)));
+
+        // 2. scale: Scale between 0.05 and 0.25f
+        float scale = (rand() % 20) / 100.0f + 0.05;
+        model = glm::scale(model, glm::vec3(scale));
+
+        // 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
+        float rotAngle = (0.0f);
+        model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // 4. now add to list of matrices
+        modelMatrices2[i] = model;
+        modelMatrices2Dist[i] = (-i+amount2/2);
+    }
+
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -207,8 +264,6 @@ int main()
 
     // load texture
     // ------------
-//    Texture diffuseMap("../Textures/container.jpg");
-//    Texture specularMap("../Textures/container_specular.jpg");
     unsigned int diffuseMap = loadTexture("../Textures/container.jpg");
     unsigned int specularMap = loadTexture("../Textures/container_specular.jpg");
 
@@ -293,11 +348,53 @@ int main()
         init(cubePositions, lightingShader);
         glCallList(renderBoxesDisplay);
 
-        //render model
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		lightingShader.setMat4("model", model);
-		ourModel.Draw(lightingShader);
+//        //render model
+//		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+//		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+//		lightingShader.setMat4("model", model);
+//		ourModel.Draw(lightingShader);
+
+        // draw planet
+        model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+//        model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+        lightingShader.setMat4("model", model);
+        planet.Draw(lightingShader);
+
+        // draw static meteorites
+        for (unsigned int i = 0; i < amount; i++)
+        {
+            glm::mat4 modelTemp = modelMatrices[i];
+//            modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+//            modelTemp = glm::translate(modelTemp, glm::vec3(1.0f, 1.0f, 1.0f));
+            modelMatrices[i] = modelTemp;
+            lightingShader.setMat4("model", modelMatrices[i]);
+            rock.Draw(lightingShader);
+        }
+
+
+        // draw flying meteorites
+        for (unsigned int i = 0; i < amount2; i++)
+        {
+            glm::mat4 modelTemp = modelMatrices2[i];
+            //modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+            modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
+            int dist = modelMatrices2Dist[i];
+            dist += 1;
+
+            if (dist > amount2/2){
+                for (int j = 0; j < amount2; j++){
+                    modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, -1.0f));
+                }
+                dist = -amount2/2;
+            }
+            modelMatrices2Dist[i] = dist;
+            modelMatrices2[i] = modelTemp;
+            lightingShader.setMat4("model", modelMatrices2[i]);
+            rock.Draw(lightingShader);
+            cout << "end \n";
+        }
+
+
 
         // render the lamp
         lampShader.use();
