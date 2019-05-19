@@ -391,7 +391,6 @@ int main()
             modelMatrices2[i] = modelTemp;
             lightingShader.setMat4("model", modelMatrices2[i]);
             rock.Draw(lightingShader);
-            cout << "end \n";
         }
 
 
