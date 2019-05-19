@@ -12,7 +12,7 @@ using namespace std;
 #include <string>
 
 #include "../Headers/shader.h"
-#include "../Headers/texture.h"
+#include "../Headers/Model.h"
 #include "camera.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -117,6 +117,8 @@ int main()
             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
             -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
             -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+	//Loading our models
+	Model ourModel("../Resources/nanosuit.obj");
 
             -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
             0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
@@ -269,23 +271,27 @@ int main()
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
 
-        // world transformation
-        glm::mat4 model = glm::mat4(1.0f);
-        lightingShader.setMat4("model", model);
-
         // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap.getId());
-        // bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap.getId());
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, diffuseMap.getId());
+        //// bind specular map
+        //glActiveTexture(GL_TEXTURE1);
+        //glBindTexture(GL_TEXTURE_2D, specularMap.getId());
 
         //render boxes
         glBindVertexArray(cubeVAO);
         init(cubePositions, lightingShader);
         glCallList(renderBoxesDisplay);
+        //render model
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		lightingShader.setMat4("model", model);
+		ourModel.Draw(lightingShader);
+		
 
-
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // render the lamp
         lampShader.use();
@@ -296,8 +302,8 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f)); //smaller cube
         lampShader.setMat4("model", model);
 
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glBindVertexArray(lightVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -307,9 +313,8 @@ int main()
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &cubeVAO);
-    glDeleteVertexArrays(1, &lightVAO);
-    glDeleteBuffers(1, &VBO);
+    //glDeleteVertexArrays(1, &lightVAO);
+    //glDeleteBuffers(1, &VBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
