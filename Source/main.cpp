@@ -18,6 +18,8 @@ using namespace std;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window);
+unsigned int loadTexture(const char *path);
+
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -106,6 +108,8 @@ int main()
     Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
     Shader lampShader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
 
+    //Loading our models
+    Model ourModel("../Models/nanosuit/nanosuit.obj");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -117,8 +121,7 @@ int main()
             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
             -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
             -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-	//Loading our models
-	Model ourModel("../Resources/nanosuit.obj");
+
 
             -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
             0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
@@ -204,8 +207,11 @@ int main()
 
     // load texture
     // ------------
-    Texture diffuseMap("../Textures/container.jpg");
-    Texture specularMap("../Textures/container_specular.jpg");
+//    Texture diffuseMap("../Textures/container.jpg");
+//    Texture specularMap("../Textures/container_specular.jpg");
+    unsigned int diffuseMap = loadTexture("../Textures/container.jpg");
+    unsigned int specularMap = loadTexture("../Textures/container_specular.jpg");
+
 
     lightingShader.use();
     lightingShader.setInt("material.diffuse", 0);
@@ -271,27 +277,27 @@ int main()
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
 
+        // world transformation
+        glm::mat4 model = glm::mat4(1.0f);
+        lightingShader.setMat4("model", model);
+
         // bind diffuse map
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, diffuseMap.getId());
-        //// bind specular map
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, specularMap.getId());
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
 
         //render boxes
         glBindVertexArray(cubeVAO);
         init(cubePositions, lightingShader);
         glCallList(renderBoxesDisplay);
+
         //render model
-		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		lightingShader.setMat4("model", model);
 		ourModel.Draw(lightingShader);
-		
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
 
         // render the lamp
         lampShader.use();
@@ -302,8 +308,8 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f)); //smaller cube
         lampShader.setMat4("model", model);
 
-        //glBindVertexArray(lightVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -512,5 +518,41 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
+}
 
 
