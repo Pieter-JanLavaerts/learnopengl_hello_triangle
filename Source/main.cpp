@@ -13,6 +13,7 @@ using namespace std;
 
 #include "../Headers/shader.h"
 #include "../Headers/Model.h"
+#include "../Headers/Sphere.h"
 #include "camera.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -52,7 +53,7 @@ void renderBoxes(glm::vec3 cubePositions[], Shader lightingShader)
         //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         lightingShader.setMat4("model", model);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 }
 
@@ -220,6 +221,8 @@ int main()
     init(cubePositions, lightingShader);
     cout << renderBoxesDisplay;
 
+	Sphere sphere = Sphere();
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -297,7 +300,7 @@ int main()
 		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		lightingShader.setMat4("model", model);
-		ourModel.Draw(lightingShader);
+		//ourModel.Draw(lightingShader);
 
         // render the lamp
         lampShader.use();
@@ -309,7 +312,9 @@ int main()
         lampShader.setMat4("model", model);
 
         glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		sphere.Draw(projection, view, model);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

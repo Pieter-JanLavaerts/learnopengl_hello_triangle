@@ -37,7 +37,6 @@ Sphere::Sphere()
 
 void Sphere::Draw(glm::mat4 model, glm::mat4 projection, glm::mat4 view)
 {
-
 	//vao
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -49,7 +48,7 @@ void Sphere::Draw(glm::mat4 model, glm::mat4 projection, glm::mat4 view)
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), &vertices[0].x, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
 	//ibo

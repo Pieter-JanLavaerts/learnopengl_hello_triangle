@@ -18,8 +18,8 @@ public:
 
 private:
     Shader shader = Shader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
-	const int Stacks = 10;
-	const int Slices = 10;
+	const int Stacks = 100;
+	const int Slices = 100;
 	const float Radius = 10;
 	std::vector<glm::vec3> vertices;
 	std::vector<int> indices;
