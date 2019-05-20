@@ -81,7 +81,7 @@ void Mesh::Draw(Shader shader, glm::mat4 model, glm::mat4 projection, glm::mat4 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	if (glGetError() != GL_NO_ERROR) {
-		cout << "Error!" << endl;
+		//cout << "Error!" << endl;
 	}
 
 	//reset everything
