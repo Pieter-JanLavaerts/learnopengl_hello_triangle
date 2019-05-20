@@ -46,6 +46,9 @@ bool left_button = false;
 int pickingId;
 bool isSmooth = true;
 Shader *currentShader = NULL;
+bool isDirectionalLightOn = true;
+bool isPointLightOn = true;
+bool isFlashLightOn = true;
 
 
 int main()
@@ -292,31 +295,47 @@ int main()
         }
         currentShader->use();
 
-        // activate shader when setting uniforms/drawing objects
         lightingShader.setFloat("material.shininess", 32.0f);
-
         // directional light
         lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        if (isDirectionalLightOn) {
+            lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+            lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+            lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        }
+        else {
+            lightingShader.setVec3("dirLight.ambient", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("dirLight.diffuse", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
+        }
         // light properties
-        lightingShader.setVec3("pointLights[0].position", glm::vec3{10000.0f,100.0f,100.0f});
-
         lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
-        lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        if (isPointLightOn) {
+            lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+            lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+            lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        }
+        else {
+            lightingShader.setVec3("pointLights[0].ambient", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("pointLights[0].diffuse", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("pointLights[0].specular", 0.0f, 0.0f, 0.0f);
+        }
         lightingShader.setFloat("pointLights[0].constant", 1.0f);
         lightingShader.setFloat("pointLights[0].linear", 0.09);
         lightingShader.setFloat("pointLights[0].quadratic", 0.032);
         // spotLight
-        lightingShader.setVec3("spotLight.position", glm::vec3{10000.0f,100.0f,100.0f});
-//            lightingShader.setVec3("spotLight.position", camera.Position);
+        lightingShader.setVec3("spotLight.position", camera.Position);
         lightingShader.setVec3("spotLight.direction", camera.Front);
-        lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        if(isFlashLightOn) {
+            lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+            lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        }
+        else {
+            lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("spotLight.diffuse", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("spotLight.specular", 0.0f, 0.0f, 0.0f);
+        }
         lightingShader.setFloat("spotLight.constant", 1.0f);
         lightingShader.setFloat("spotLight.linear", 0.09);
         lightingShader.setFloat("spotLight.quadratic", 0.032);
@@ -478,6 +497,31 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
         isSmooth = true;
     }
+    //U op azerty
+    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+        isDirectionalLightOn = true;
+    }
+    //J op azerty
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+        isDirectionalLightOn = false;
+    }
+    //I op azerty
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+        isPointLightOn = true;
+    }
+    //K op azerty
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        isPointLightOn = false;
+    }
+    //O op azerty
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+        isFlashLightOn = true;
+    }
+    //L op azerty
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        isFlashLightOn = false;
+    }
+
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
