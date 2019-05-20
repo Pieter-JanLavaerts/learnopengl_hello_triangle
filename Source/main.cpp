@@ -46,6 +46,10 @@ bool left_button = false;
 Shader *pickingShader;
 int pickingId = 0;
 
+bool isSmooth = true;
+
+
+
 int main()
 {
     // glfw: initialize and configure
@@ -84,8 +88,10 @@ int main()
 
     //build and compile our shaders
     //Shader lightingShader("Shaders/lighting.vs", "Shaders/lighting.fs");
-//    Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
-    Shader lightingShader("../Shaders/flat.vs", "../Shaders/flat.fs");
+    Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
+    Shader smoothShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
+    Shader flatShader("../Shaders/flat.vs", "../Shaders/flat.fs");
+
     Shader lampShader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
     pickingShader = new Shader("../Shaders/lamp.vs", "../Shaders/picking.fs");
 
@@ -275,6 +281,13 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+        if(isSmooth){
+            lightingShader = smoothShader;
+        }
+        else{
+            lightingShader = flatShader;
+        }
         // activate shadre when setting uniforms/drawing objects
         if (!left_button) {
             lightingShader.use();
@@ -477,12 +490,18 @@ void processInput(GLFWwindow *window)
     //W op azerty
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        cout << "wireframe\n";
     }
     //X op azerty
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        cout << "stop wireframe\n";
+    }
+    //C op azerty
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+        isSmooth = false;
+    }
+    //V op azerty
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
+        isSmooth = true;
     }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)){
         if (left_button) {
