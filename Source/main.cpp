@@ -28,7 +28,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 const unsigned int SCR_WIDTH = 1600;
 const unsigned int SCR_HEIGHT = 900;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 5.0f, 50.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -357,6 +357,8 @@ int main()
         glm::mat4 modelPlanet = glm::mat4(1.0f);
         modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
         modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
+        modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
+
         assignPickingId(&pickingId, pickingShader);
         planet.Draw(*currentShader, model, projection, view);
 
@@ -378,7 +380,6 @@ int main()
         for (unsigned int i = 0; i < amount2; i++)
         {
             glm::mat4 modelTemp = modelMatrices2[i];
-//            modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
             modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
             int dist = modelMatrices2Dist[i];
             dist += 1;
@@ -393,6 +394,37 @@ int main()
             modelMatrices2[i] = modelTemp;
             rock.Draw(*currentShader, modelMatrices2[i], projection, view);
         }
+
+        //sun
+        if (currentShader != &pickingShader) {
+            currentShader=&lampShader;
+        }
+        currentShader->use();
+        currentShader->setMat4("projection", projection);
+        currentShader->setMat4("view", camera.GetViewMatrix());
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+        currentShader->setMat4("model", model);
+        int sunId = assignPickingId(&pickingId, pickingShader);
+        renderSphere();
+
+        //moon
+        modelPlanet = glm::mat4(1.0f);
+        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
+        modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
+        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
+        modelPlanet = glm::translate(modelPlanet, glm::vec3(2.0f, -2.0f, 0.0f));
+        modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
+
+        currentShader->setMat4("model", modelPlanet);
+        assignPickingId(&pickingId, pickingShader);
+        renderSphere();
+        currentShader=NULL;
+
+
+        currentShader=NULL;
+
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
