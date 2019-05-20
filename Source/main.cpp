@@ -21,7 +21,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
 void renderSphere();
-void assignPickingId(int *picking_id, Shader pickingShader);
+int assignPickingId(int *picking_id, Shader pickingShader);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // settings
@@ -411,13 +411,15 @@ int main()
         }
 
         //sun
-        currentShader=&lampShader;
+        if (currentShader != &pickingShader) {
+            currentShader=&lampShader;
+        }
         currentShader->use();
         currentShader->setMat4("projection", projection);
         currentShader->setMat4("view", camera.GetViewMatrix());
         model = glm::mat4(1.0f);
         currentShader->setMat4("model", model);
-        assignPickingId(&pickingId, pickingShader);
+        int sunId = assignPickingId(&pickingId, pickingShader);
         renderSphere();
         currentShader=NULL;
 
@@ -448,9 +450,16 @@ int main()
 
             cout << "Picked id: " << pickedID << endl;
 
-            //if clicked something or clicked air
+            //if clicked something
             if (pickedID < pickingId) {
-
+                if (pickedID == sunId) {
+                    if (isPointLightOn) {
+                        isPointLightOn = false;
+                    }
+                    else {
+                        isPointLightOn = true;
+                    }
+                }
                 left_button = false;
             }
         }
@@ -611,7 +620,7 @@ unsigned int loadTexture(char const * path)
     return textureID;
 }
 
-void assignPickingId(int *picking_id, Shader pickingShader)
+int assignPickingId(int *picking_id, Shader pickingShader)
 {
     int r = ((*picking_id) & 0x000000FF) >>  0;
     int g = ((*picking_id) & 0x0000FF00) >>  8;
@@ -620,6 +629,8 @@ void assignPickingId(int *picking_id, Shader pickingShader)
     pickingShader.setVec4("PickingColor", glm::vec4(r/255.0f, g/255.0f, b/255.0f, 1.0f));
 
     (*picking_id)++;
+
+    return (*picking_id)-1;
 }
 
 unsigned int sphereVAO = 0;
