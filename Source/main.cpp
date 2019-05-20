@@ -364,7 +364,12 @@ int main()
 
 		Sphere sun = Sphere();
 		int sunId = assignPickingId(&pickingId, pickingShader);
-		sun.Draw(lampShader, model, projection, view);
+		if (currentShader != &pickingShader) {
+			sun.Draw(lampShader, model, projection, view);
+		}
+		else {
+			sun.Draw(pickingShader, model, projection, view);
+		}
 
         // draw static meteorites
         for (unsigned int i = 0; i < amount; i++)
@@ -395,19 +400,7 @@ int main()
             rock.Draw(*currentShader, modelMatrices2[i], projection, view);
         }
 
-        //sun
-        if (currentShader != &pickingShader) {
-            currentShader=&lampShader;
-        }
-        currentShader->use();
-        currentShader->setMat4("projection", projection);
-        currentShader->setMat4("view", camera.GetViewMatrix());
-        model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-        currentShader->setMat4("model", model);
-        int sunId = assignPickingId(&pickingId, pickingShader);
-        renderSphere();
-
+	Sphere moon = Sphere();
         //moon
         modelPlanet = glm::mat4(1.0f);
         modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -416,15 +409,8 @@ int main()
         modelPlanet = glm::translate(modelPlanet, glm::vec3(2.0f, -2.0f, 0.0f));
         modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
 
-        currentShader->setMat4("model", modelPlanet);
         assignPickingId(&pickingId, pickingShader);
-        renderSphere();
-        currentShader=NULL;
-
-
-        currentShader=NULL;
-
-
+	moon.Draw(*currentShader, model, projection, view);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
