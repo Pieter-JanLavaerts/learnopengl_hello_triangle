@@ -360,7 +360,7 @@ int main()
         modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
 
         assignPickingId(&pickingId, pickingShader);
-        planet.Draw(*currentShader, model, projection, view);
+        planet.Draw(*currentShader, modelPlanet, projection, view);
 
 		Sphere sun = Sphere();
 		int sunId = assignPickingId(&pickingId, pickingShader);
@@ -410,7 +410,7 @@ int main()
         modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
 
         assignPickingId(&pickingId, pickingShader);
-	moon.Draw(*currentShader, model, projection, view);
+	moon.Draw(*currentShader, modelPlanet, projection, view);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
