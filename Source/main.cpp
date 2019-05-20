@@ -249,7 +249,7 @@ int main()
     lightingShader.setInt("material.specular", 1);
 
 //	Sphere sphere = Sphere();
-
+    glShadeModel(GL_FLAT);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -312,12 +312,12 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         lightingShader.setMat4("model", model);
 
-        // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        // bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap);
+//        // bind diffuse map
+//        glActiveTexture(GL_TEXTURE0);
+//        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+//        // bind specular map
+//        glActiveTexture(GL_TEXTURE1);
+//        glBindTexture(GL_TEXTURE_2D, specularMap);
 
         //render boxes
         glBindVertexArray(cubeVAO);
@@ -330,7 +330,7 @@ int main()
             //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             lightingShader.setMat4("model", model);
 
-//            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
         // draw planet
@@ -443,6 +443,16 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    //W op azerty
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        cout << "wireframe\n";
+    }
+    //X op azerty
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        cout << "stop wireframe\n";
+    }
 }
 
 //glfw: whenever the mouse move, this calback is called
