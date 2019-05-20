@@ -1,0 +1,9 @@
+[
+  {
+    "modelfile": "../Models/planet/planet.obj",
+    "angle": "0.2f",
+    "rotatex": "0.0f",
+    "rotatey": "1.0f",
+    "rotatez": "0.0f"
+  }
+]
