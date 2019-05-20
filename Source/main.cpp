@@ -257,8 +257,10 @@ int main()
 	// ------------
 	unsigned int diffuseMap = loadTexture("../Textures/container.jpg");
 	unsigned int specularMap = loadTexture("../Textures/container_specular.jpg");
+    unsigned int moonMap = loadTexture("../Textures/moon.jpg");
 
-	lightingShader.setInt("material.diffuse", 0);
+
+    lightingShader.setInt("material.diffuse", 0);
 	lightingShader.setInt("material.specular", 1);
 
 
@@ -314,7 +316,7 @@ int main()
 			lightingShader.setVec3("dirLight.diffuse", 0.0f, 0.0f, 0.0f);
 			lightingShader.setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
 		}
-		// light properties
+		// 
 		if (isPointLightOn) {
 			lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
 			lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
@@ -363,6 +365,8 @@ int main()
 		planet.Draw(*currentShader, modelPlanet, projection, view);
 
 		Sphere sun = Sphere();
+		model = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(10.0f,10.0f,10.0f));
 		int sunId = assignPickingId(&pickingId, pickingShader);
 		if (currentShader != &pickingShader) {
 			sun.Draw(lampShader, model, projection, view);
