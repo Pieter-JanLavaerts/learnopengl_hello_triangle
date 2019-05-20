@@ -78,7 +78,8 @@ int main()
 
     //build and compile our shaders
     //Shader lightingShader("Shaders/lighting.vs", "Shaders/lighting.fs");
-    Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
+//    Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
+    Shader lightingShader("../Shaders/flat.vs", "../Shaders/flat.fs");
     Shader lampShader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
 
     //Loading our models
@@ -136,7 +137,7 @@ int main()
 
         // 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
         float rotAngle = (0.0f);
-        model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+//        model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
 
         // 4. now add to list of matrices
         modelMatrices2[i] = model;
@@ -275,13 +276,13 @@ int main()
         lightingShader.setFloat("material.shininess", 32.0f);
 
 
-        // directional light
+//         directional light
         lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
         lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
         lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-        // light properties
-        lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+//         light properties
+        lightingShader.setVec3("pointLights[0].position", glm::vec3{1000000000000.0f,0.0f,0.0f});
         lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
         lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
         lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
@@ -289,8 +290,8 @@ int main()
         lightingShader.setFloat("pointLights[0].linear", 0.09);
         lightingShader.setFloat("pointLights[0].quadratic", 0.032);
         // spotLight
-//        lightingShader.setVec3("spotLight.position", glm::vec3{100.0f,100.0f,100.0f});
-        lightingShader.setVec3("spotLight.position", camera.Position);
+        lightingShader.setVec3("spotLight.position", glm::vec3{1000000000000000000000000000.0f,100.0f,100.0f});
+//        lightingShader.setVec3("spotLight.position", camera.Position);
         lightingShader.setVec3("spotLight.direction", camera.Front);
         lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
         lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
@@ -336,8 +337,8 @@ int main()
         // draw planet
 //        modelPlanet = glm::translate(modelPlanet, glm::vec3(-0.1f, 0.0f, 0.0f));
         glm::mat4 modelPlanet = glm::mat4(1.0f);
-        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.5f) , glm::vec3(0.0f, 1.0f, 0.0f));
-        modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
+//        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.5f) , glm::vec3(0.0f, 1.0f, 0.0f));
+//        modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
         //model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
         lightingShader.setMat4("model", modelPlanet);
         planet.Draw(lightingShader);
@@ -359,7 +360,7 @@ int main()
         {
             glm::mat4 modelTemp = modelMatrices2[i];
             //modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-            modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
+//            modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
             int dist = modelMatrices2Dist[i];
             dist += 1;
 
@@ -375,11 +376,12 @@ int main()
             rock.Draw(lightingShader);
         }
 
+        //draw sun
         lampShader.use();
         lampShader.setMat4("projection", projection);
         lampShader.setMat4("view", camera.GetViewMatrix());
-        glm::vec3 newPos = pointLightPositions[0] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
-        newPos = pointLightPositions[0];
+//        glm::vec3 newPos = pointLightPositions[0] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
+//        newPos = pointLightPositions[0];
 //        pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", newPos);
 //        pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
 
