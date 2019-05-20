@@ -22,7 +22,7 @@ void processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
 void renderSphere();
 void assignPickingId(int *picking_id, Shader pickingShader);
-
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 // settings
 const unsigned int SCR_WIDTH = 1600;
@@ -44,7 +44,7 @@ bool left_button = false;
 
 //picking globals
 Shader *pickingShader;
-int pickingId = 0;
+int pickingId;
 
 int main()
 {
@@ -67,6 +67,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -91,7 +92,6 @@ int main()
     //Loading our models
     Model rock("../Models/rock/rock.obj");
     Model planet("../Models/planet/planet.obj");
-
 
     unsigned int amount = 1000;
     glm::mat4* modelMatrices;
@@ -259,6 +259,8 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        pickingId = 0;
+
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
@@ -376,6 +378,7 @@ int main()
                 rock.Draw(lightingShader);
             }
             else {
+                pickingShader->setMat4("model", modelMatrices[i]);
                 rock.Draw((*pickingShader));
             }
         }
@@ -402,17 +405,22 @@ int main()
             rock.Draw(lightingShader);
         }
 
-        lampShader.use();
-        lampShader.setMat4("projection", projection);
-        lampShader.setMat4("view", camera.GetViewMatrix());
-        glm::vec3 newPos = pointLightPositions[0] + glm::vec3(sin(glfwGetTime() * 5.0) * 5.0, 0.0, 0.0);
-        newPos = pointLightPositions[0];
-//        pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", newPos);
-//        pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f));
-        lampShader.setMat4("model", model);
+        if (!left_button) {
+            lampShader.use();
+            lampShader.setMat4("projection", projection);
+            lampShader.setMat4("view", camera.GetViewMatrix());
+            model = glm::mat4(1.0f);
+            lampShader.setMat4("model", model);
+        }
+        else {
+            pickingShader->use();
+            pickingShader->setMat4("projection", projection);
+            pickingShader->setMat4("view", camera.GetViewMatrix());
+            model = glm::mat4(1.0f);
+            pickingShader->setMat4("model", model);
+            assignPickingId(&pickingId, (*pickingShader));
+        }
+        //model = glm::translate(model, glm::vec3(0.0f));
         renderSphere();
 
 
@@ -432,8 +440,33 @@ int main()
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
+        if (!left_button) {
+            glfwSwapBuffers(window);
+        }
         glfwPollEvents();
+
+        if (left_button) { //left button has been pressed
+            glFlush();
+            glFinish();
+
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+            // Read the pixel at the center of the screen.
+            // You can also use glfwGetMousePos().
+            // Ultra-mega-over slow too, even for 1 pixel,
+            // because the framebuffer is on the GPU.
+            unsigned char data[4];
+            glReadPixels(1024/2, 768/2,1,1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+            int pickedID =
+                    data[0] +
+                    data[1] * 256 +
+                    data[2] * 256*256;
+
+            cout << "Picked id: " << pickedID << endl;
+
+            left_button = false;
+        }
     }
 
     // optional: de-allocate all resources once they've outlived their purpose:
@@ -480,15 +513,14 @@ void processInput(GLFWwindow *window)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         cout << "stop wireframe\n";
     }
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)){
-        if (left_button) {
-            left_button = false;
-        }
-        else {
-            left_button = true;
-        }
-    }
 }
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+        left_button = true;
+}
+
 
 //glfw: whenever the mouse move, this calback is called
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -499,143 +531,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         lastY = ypos;
         firstMouse = false;
     }
-
-//    // picking
-//    GLuint selectBuf[512];
-//    glSelectBuffer ( 512, selectBuf );
-//    glRenderMode( GL_SELECT );
-//    glInitNames( );
-//
-//    GLint viewport[4];
-//    glGetIntegerv( GL_VIEWPORT, viewport );
-//    // remember current matrix
-//    GLdouble pm[16];
-//    glGetDoublev( GL_PROJECTION_MATRIX, pm );
-//
-//    glMatrixMode( GL_PROJECTION );
-//    glPushMatrix( ); // save current matrix
-//    glLoadIdentity( ); // start with identity
-//    gluPickMatrix( lastX, (viewport[3] - lastY), 5.0, 5.0, viewport ); // create picking region
-//    glMultMatrixd( pm ); // apply projection
-//
-//
-//    float vertices[] = {
-//            -0.5f, -0.5f, 0.0f,
-//            0.5f, -0.5f, 0.0f,
-//            0.0f,  0.5f, 0.0f
-//    };
-//    unsigned int VBO;
-//    glGenBuffers(2, &VBO);
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-//
-//
-//
-//    // build and compile our shader program
-//    // ------------------------------------
-//    // vertex shader
-//    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-//    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-//    glCompileShader(vertexShader);
-//    // check for shader compile errors
-//    int success;
-//    char infoLog[512];
-//    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    }
-//    // fragment shader
-//    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-//    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-//    glCompileShader(fragmentShader);
-//    // check for shader compile errors
-//    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    }
-//    // link shaders
-//    int shaderProgram = glCreateProgram();
-//    glAttachShader(shaderProgram, vertexShader);
-//    glAttachShader(shaderProgram, fragmentShader);
-//    glLinkProgram(shaderProgram);
-//    // check for linking errors
-//    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-//    if (!success) {
-//        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-//    }
-//    glDeleteShader(vertexShader);
-//    glDeleteShader(fragmentShader);
-//
-//    // 0. copy our vertices array in a buffer for OpenGL to use
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-//// 1. then set the vertex attributes pointers
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-//    glEnableVertexAttribArray(0);
-//// 2. use our shader program when we want to render an object
-//    glUseProgram(shaderProgram);
-//// 3. now draw the object
-//
-//
-//    unsigned int VAO;
-//    glGenVertexArrays(1, &VAO);
-//
-//    // ..:: Initialization code (done once (unless your object frequently changes)) :: ..
-//// 1. bind Vertex Array Object
-//    glBindVertexArray(VAO);
-//// 2. copy our vertices array in a buffer for OpenGL to use
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-//// 3. then set our vertex attributes pointers
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-//    glEnableVertexAttribArray(0);
-//
-//
-//
-//// ..:: Drawing code (in render loop) :: ..
-//// 4. draw the object
-//    glUseProgram(shaderProgram);
-//    glBindVertexArray(VAO);
-//
-//    glUseProgram(shaderProgram);
-//    glBindVertexArray(VAO);
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
-//
-//
-//
-//    glMatrixMode( GL_PROJECTION );
-//    glPopMatrix( );
-//    GLint hits = glRenderMode( GL_RENDER );
-//    cout << hits;
-//    cout << "\n";
-//
-//    GLuint minMinZ = 0xffffffff;
-//    // process hits
-//    int firstHit = -1;
-//    GLuint *ptr = (GLuint *)selectBuf;
-//    for (GLint i = 0; i < hits; i++)
-//    {
-//        GLuint nrNames = *ptr;
-//        ptr++; // skip nrNames
-//        GLuint minZ = *ptr;
-//        ptr++; // skip minZ
-//        GLuint maxZ = *ptr;
-//        ptr++; // skip maxZ
-//        for (GLuint j = 0; j < nrNames; j++)
-//        {
-//            if (minZ < minMinZ)
-//            {
-//                minMinZ = minZ;
-//                firstHit = *ptr;
-//            }
-//            ptr++;
-//        }
-//    }
 
     float xoffset = xpos - lastX;
     float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
