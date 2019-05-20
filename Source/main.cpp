@@ -422,8 +422,6 @@ int main()
                     data[2] * 256*256;
 
             cout << "Picked id: " << pickedID << endl;
-
-            left_button = false;
         }
     }
 
@@ -481,8 +479,14 @@ void processInput(GLFWwindow *window)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-        left_button = true;
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        if (left_button) {
+            left_button = false;
+        }
+        else {
+            left_button = true;
+        }
+    }
 }
 
 
