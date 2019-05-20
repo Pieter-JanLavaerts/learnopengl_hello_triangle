@@ -422,6 +422,9 @@ int main()
                     data[2] * 256*256;
 
             cout << "Picked id: " << pickedID << endl;
+            if (pickedID < 100000) {
+                left_button = false;
+            }
         }
     }
 
