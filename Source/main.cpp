@@ -279,21 +279,25 @@ int main()
 
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
         //setting current shader
         if (left_button) {
             currentShader = &pickingShader;
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         else if(isSmooth){
             currentShader = &smoothShader;
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         }
         else{
             currentShader = &flatShader;
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         }
         currentShader->use();
+
+        //air color
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         lightingShader.setFloat("material.shininess", 32.0f);
         // directional light
@@ -419,7 +423,9 @@ int main()
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
-        glfwSwapBuffers(window);
+        if (!left_button) {
+            glfwSwapBuffers(window);
+        }
         glfwPollEvents();
 
         if (left_button) { //left button has been pressed
@@ -433,7 +439,7 @@ int main()
             // Ultra-mega-over slow too, even for 1 pixel,
             // because the framebuffer is on the GPU.
             unsigned char data[4];
-            glReadPixels(1024/2, 768/2,1,1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glReadPixels(1366/2, 768/2,1,1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
             int pickedID =
                     data[0] +
@@ -441,7 +447,10 @@ int main()
                     data[2] * 256*256;
 
             cout << "Picked id: " << pickedID << endl;
-            if (pickedID < 100000) {
+
+            //if clicked something or clicked air
+            if (pickedID < 100000 || pickedID == 16777215) {
+
                 left_button = false;
             }
         }
