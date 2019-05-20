@@ -43,9 +43,9 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::Draw(Shader shader)
+void Mesh::BindTexture(Shader shader)
 {
-//bind appropriate textures
+	//bind appropriate textures
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
@@ -53,7 +53,7 @@ void Mesh::Draw(Shader shader)
     for (unsigned int i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); //active propuer texture unit
-// retreive texture number
+		// retreive texture number
         string number;
         string name = textures[i].type;
         if (name == "texture_diffuse")
@@ -66,14 +66,26 @@ void Mesh::Draw(Shader shader)
         glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
+}
 
-//draw mesh
+void Mesh::Draw(Shader shader, glm::mat4 model, glm::mat4 projection, glm::mat4 view)
+{
+	shader.use();
+	shader.setMat4("projection", projection);
+	shader.setMat4("view", view);
+	shader.setMat4("model", model);
+
+	BindTexture(shader);
+
+	//draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	if (glGetError() != GL_NO_ERROR) {
 		cout << "Error!" << endl;
 	}
-    glBindVertexArray(0);
 
+	//reset everything
+    glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
+	shader.unUse();
 }

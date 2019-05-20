@@ -67,7 +67,7 @@ Sphere::Sphere()
 	generateVAO();
 }
 
-void Sphere::Draw(glm::mat4 model, glm::mat4 projection, glm::mat4 view)
+void Sphere::Draw(Shader shader, glm::mat4 model, glm::mat4 projection, glm::mat4 view)
 {
 	//setting up the shader
 	shader.use();
