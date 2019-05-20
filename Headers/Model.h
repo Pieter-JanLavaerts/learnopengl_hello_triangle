@@ -24,10 +24,10 @@ public:
         loadModel(path);
     }
 
-    void Draw(Shader shader)
+    void Draw(Shader shader, glm::mat4 model, glm::mat4 projection, glm::mat4 view)
     {
         for(unsigned int i = 0; i < meshes.size(); i++)
-            meshes[i].Draw(shader);
+            meshes[i].Draw(shader, model, projection, view);
     }
 
 private:

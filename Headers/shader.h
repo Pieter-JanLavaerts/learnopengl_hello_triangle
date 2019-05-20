@@ -24,6 +24,7 @@ public:
     Shader(const std::string& vertexPath, const std::string& fragmentPath);
     // use/activate the shader
     void use();
+    void unUse();
     // utility uniform functions
     void setBool(const std::string &name, bool value) const;
     void setInt(const std::string &name, int value) const;

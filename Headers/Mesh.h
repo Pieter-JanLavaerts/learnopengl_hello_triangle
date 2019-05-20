@@ -48,12 +48,13 @@ public:
 
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
 
-    void Draw(Shader shader);
+    void Draw(Shader shader, glm::mat4 model, glm::mat4 projection, glm::mat4 view);
 
 private:
     unsigned int VBO, EBO;
 
     void setupMesh();
+	void BindTexture(Shader shader);
 };
 
 
