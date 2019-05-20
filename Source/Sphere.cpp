@@ -1,8 +1,7 @@
 #include "../Headers/Sphere.h"
 
-Sphere::Sphere()
+void Sphere::calculateVertices()
 {
-	// Calc The Vertices
 	for (int i = 0; i <= Stacks; ++i){
 		float V   = i / (float) Stacks;
 		float phi = V * glm::pi <float> ();
@@ -22,8 +21,10 @@ Sphere::Sphere()
 			vertices.push_back (glm::vec3(x, y, z) * Radius);
 		}
 	}
+}
 
-	// Calc The Index Positions
+void Sphere::calculateIndices()
+{
 	for (int i = 0; i < Slices * Stacks + Slices; ++i){
 		indices.push_back (i);
 		indices.push_back (i + Slices + 1);
@@ -35,10 +36,9 @@ Sphere::Sphere()
 	}
 }
 
-void Sphere::Draw(glm::mat4 model, glm::mat4 projection, glm::mat4 view)
+void Sphere::generateVAO()
 {
 	//vao
-	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -57,11 +57,25 @@ void Sphere::Draw(glm::mat4 model, glm::mat4 projection, glm::mat4 view)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
+	glBindVertexArray(0);
+}
+
+Sphere::Sphere()
+{
+	calculateVertices();
+	calculateIndices();
+	generateVAO();
+}
+
+void Sphere::Draw(glm::mat4 model, glm::mat4 projection, glm::mat4 view)
+{
 	//setting up the shader
 	shader.use();
 	shader.setMat4("projection", projection);
 	shader.setMat4("view",  view);
 	shader.setMat4("model", model);
 
+	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

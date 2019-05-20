@@ -17,10 +17,14 @@ public:
 	void Draw(glm::mat4 projection, glm::mat4 view, glm::mat4 model);
 
 private:
+	unsigned int VAO;
+	void calculateVertices();
+	void calculateIndices();
+	void generateVAO();
     Shader shader = Shader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
-	const int Stacks = 100;
-	const int Slices = 100;
-	const float Radius = 10;
+	const int Stacks = 200;
+	const int Slices = 200;
+	const float Radius = 1;
 	std::vector<glm::vec3> vertices;
 	std::vector<int> indices;
 };
