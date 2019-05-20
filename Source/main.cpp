@@ -360,6 +360,9 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 
+
+
+
 		//draw sun
         Sphere sun = Sphere();
         model = glm::mat4(1.0f);
