@@ -259,7 +259,6 @@ int main()
     lightingShader.setInt("material.specular", 1);
 
 
-//	Sphere sphere = Sphere();
     glShadeModel(GL_FLAT);
     // render loop
     // -----------
@@ -371,8 +370,9 @@ int main()
         }
 
         // draw planet
-//        modelPlanet = glm::translate(modelPlanet, glm::vec3(-0.1f, 0.0f, 0.0f));
         glm::mat4 modelPlanet = glm::mat4(1.0f);
+        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
+        modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
         assignPickingId(&pickingId, pickingShader);
         currentShader->setMat4("model", modelPlanet);
         planet.Draw(*currentShader);
@@ -393,8 +393,8 @@ int main()
         for (unsigned int i = 0; i < amount2; i++)
         {
             glm::mat4 modelTemp = modelMatrices2[i];
-            //modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-//            modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
+//            modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+            modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
             int dist = modelMatrices2Dist[i];
             dist += 1;
 
