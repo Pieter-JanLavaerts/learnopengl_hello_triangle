@@ -355,25 +355,28 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 
-		// draw planet
-		glm::mat4 modelPlanet = glm::mat4(1.0f);
+		//draw sun
+        Sphere sun = Sphere();
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(10.0f,10.0f,10.0f));
+        int sunId = assignPickingId(&pickingId, pickingShader);
+        if (currentShader != &pickingShader) {
+            sun.Draw(lampShader, model, projection, view);
+        }
+        else {
+            sun.Draw(pickingShader, model, projection, view);
+        }
+
+        // draw planet
+        glm::mat4 modelPlanet = glm::mat4(1.0f);
 		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
 		modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
 		modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
 
-		assignPickingId(&pickingId, pickingShader);
+		int bla = assignPickingId(&pickingId, pickingShader);
 		planet.Draw(*currentShader, modelPlanet, projection, view);
 
-		Sphere sun = Sphere();
-		model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(10.0f,10.0f,10.0f));
-		int sunId = assignPickingId(&pickingId, pickingShader);
-		if (currentShader != &pickingShader) {
-			sun.Draw(lampShader, model, projection, view);
-		}
-		else {
-			sun.Draw(pickingShader, model, projection, view);
-		}
+
 
 		// draw static meteorites
 		for (unsigned int i = 0; i < amount; i++)
