@@ -369,8 +369,8 @@ int main()
 
         // draw planet
         glm::mat4 modelPlanet = glm::mat4(1.0f);
-		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
+		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelPlanet = glm::translate(modelPlanet, glm::vec3(-20.0f, 0.0f, 0.0f));
 		modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
 
 		int bla = assignPickingId(&pickingId, pickingShader);
@@ -410,8 +410,8 @@ int main()
 		Sphere moon = Sphere();
 		//moon
 		modelPlanet = glm::mat4(1.0f);
-		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.1f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
+		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelPlanet = glm::translate(modelPlanet, glm::vec3(-20.0f, 0.0f, 0.0f));
 		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 		modelPlanet = glm::translate(modelPlanet, glm::vec3(2.0f, -2.0f, 0.0f));
 		modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
