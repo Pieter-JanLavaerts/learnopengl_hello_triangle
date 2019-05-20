@@ -1,4 +1,5 @@
 #include <iostream>
+#include <json/value.h>
 
 using namespace std;
 
@@ -15,9 +16,6 @@ using namespace std;
 #include "../Headers/Model.h"
 #include "../Headers/Sphere.h"
 #include "camera.h"
-
-#include "../Headers/json.hpp"
-using json = nlohmann::json;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -56,13 +54,9 @@ bool isFlashLightOn = true;
 
 int main()
 {
-	ifstream i("../Models/planet.json");
-	json j;
-	if (i.is_open()) {
-		j = json::parse(i);
-	}
-	string a = j["filename"].get<string>();
-
+	ifstream i("../Models/planet.json", ifstream::binary);
+	Json::Value planeet;
+	i >> planeet;
 
 	// glfw: initialize and configure
 	// ------------------------------
