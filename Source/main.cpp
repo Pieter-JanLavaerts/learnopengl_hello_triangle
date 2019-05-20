@@ -265,7 +265,8 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-        pickingId = 0;
+        //lucht is 0
+        pickingId = 1;
 
         // per-frame time logic
         // --------------------
@@ -280,11 +281,10 @@ int main()
         // render
         // ------
 
-
         //setting current shader
         if (left_button) {
             currentShader = &pickingShader;
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         }
         else if(isSmooth){
             currentShader = &smoothShader;
@@ -449,7 +449,7 @@ int main()
             cout << "Picked id: " << pickedID << endl;
 
             //if clicked something or clicked air
-            if (pickedID < 100000 || pickedID == 16777215) {
+            if (pickedID < pickingId) {
 
                 left_button = false;
             }
