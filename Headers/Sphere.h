@@ -21,8 +21,8 @@ private:
 	void calculateVertices();
 	void calculateIndices();
 	void generateVAO();
-	const int Stacks = 200;
-	const int Slices = 200;
+	const int Stacks = 2;
+	const int Slices = 4;
 	const float Radius = 1;
 	std::vector<glm::vec3> vertices;
 	std::vector<int> indices;
