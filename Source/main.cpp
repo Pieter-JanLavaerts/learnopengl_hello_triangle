@@ -287,6 +287,8 @@ int main()
             lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
             lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
             // light properties
+            lightingShader.setVec3("pointLights[0].position", glm::vec3{10000.0f,100.0f,100.0f});
+
             lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
             lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
             lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
@@ -295,8 +297,8 @@ int main()
             lightingShader.setFloat("pointLights[0].linear", 0.09);
             lightingShader.setFloat("pointLights[0].quadratic", 0.032);
             // spotLight
-//        lightingShader.setVec3("spotLight.position", glm::vec3{100.0f,100.0f,100.0f});
-            lightingShader.setVec3("spotLight.position", camera.Position);
+        lightingShader.setVec3("spotLight.position", glm::vec3{10000.0f,100.0f,100.0f});
+//            lightingShader.setVec3("spotLight.position", camera.Position);
             lightingShader.setVec3("spotLight.direction", camera.Front);
             lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
