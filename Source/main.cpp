@@ -21,7 +21,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
 void renderSphere();
-
+void assignPickingId(int *picking_id, Shader pickingShader);
 
 
 // settings
@@ -39,6 +39,12 @@ float lastFrame = 0.0f;
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+bool left_button = false;
+
+//picking globals
+Shader *pickingShader;
+int pickingId = 0;
 
 int main()
 {
@@ -81,12 +87,11 @@ int main()
 //    Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
     Shader lightingShader("../Shaders/flat.vs", "../Shaders/flat.fs");
     Shader lampShader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
+    pickingShader = new Shader("../Shaders/lamp.vs", "../Shaders/picking.fs");
 
     //Loading our models
     Model rock("../Models/rock/rock.obj");
     Model planet("../Models/planet/planet.obj");
-
-
 
 
     unsigned int amount = 1000;
@@ -245,9 +250,9 @@ int main()
     unsigned int specularMap = loadTexture("../Textures/container_specular.jpg");
 
 
-    lightingShader.use();
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
+
 
 //	Sphere sphere = Sphere();
     glShadeModel(GL_FLAT);
@@ -271,43 +276,49 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // activate shadre when setting uniforms/drawing objects
-        lightingShader.use();
-        lightingShader.setVec3("viewPos", camera.Position);
-        lightingShader.setFloat("material.shininess", 32.0f);
+        if (!left_button) {
+            lightingShader.use();
+            lightingShader.setVec3("viewPos", camera.Position);
+            lightingShader.setFloat("material.shininess", 32.0f);
 
-
-//         directional light
-        lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-//         light properties
-        lightingShader.setVec3("pointLights[0].position", glm::vec3{1000000000000.0f,0.0f,0.0f});
-        lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-        lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("pointLights[0].constant", 1.0f);
-        lightingShader.setFloat("pointLights[0].linear", 0.09);
-        lightingShader.setFloat("pointLights[0].quadratic", 0.032);
-        // spotLight
-        lightingShader.setVec3("spotLight.position", glm::vec3{1000000000000000000000000000.0f,100.0f,100.0f});
-//        lightingShader.setVec3("spotLight.position", camera.Position);
-        lightingShader.setVec3("spotLight.direction", camera.Front);
-        lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        lightingShader.setFloat("spotLight.constant", 1.0f);
-        lightingShader.setFloat("spotLight.linear", 0.09);
-        lightingShader.setFloat("spotLight.quadratic", 0.032);
-        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
+            // directional light
+            lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+            lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+            lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+            lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+            // light properties
+            lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+            lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+            lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+            lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+            lightingShader.setFloat("pointLights[0].constant", 1.0f);
+            lightingShader.setFloat("pointLights[0].linear", 0.09);
+            lightingShader.setFloat("pointLights[0].quadratic", 0.032);
+            // spotLight
+//        lightingShader.setVec3("spotLight.position", glm::vec3{100.0f,100.0f,100.0f});
+            lightingShader.setVec3("spotLight.position", camera.Position);
+            lightingShader.setVec3("spotLight.direction", camera.Front);
+            lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+            lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+            lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+            lightingShader.setFloat("spotLight.constant", 1.0f);
+            lightingShader.setFloat("spotLight.linear", 0.09);
+            lightingShader.setFloat("spotLight.quadratic", 0.032);
+            lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+            lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+        }
+        else {
+            pickingShader->use();
+            pickingShader->setVec3("viewPos", camera.Position);
+        }
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         lightingShader.setMat4("projection", projection);
+        pickingShader->setMat4("projection", projection);
         lightingShader.setMat4("view", view);
+        pickingShader->setMat4("view", view);
 
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
@@ -330,7 +341,9 @@ int main()
             float angle = 30.0f * (i+1) * (glfwGetTime()+0.5*glm::tan(glfwGetTime()+i));
             //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             lightingShader.setMat4("model", model);
+            pickingShader->setMat4("model", model);
 
+            assignPickingId(&pickingId, (*pickingShader));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
@@ -340,8 +353,15 @@ int main()
 //        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.5f) , glm::vec3(0.0f, 1.0f, 0.0f));
 //        modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
         //model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
-        lightingShader.setMat4("model", modelPlanet);
-        planet.Draw(lightingShader);
+        assignPickingId(&pickingId, (*pickingShader));
+        if (!left_button) {
+            lightingShader.setMat4("model", modelPlanet);
+            planet.Draw(lightingShader);
+        }
+        else {
+            pickingShader->setMat4("model", modelPlanet);
+            planet.Draw((*pickingShader));
+        }
 
         // draw static meteorites
         for (unsigned int i = 0; i < amount; i++)
@@ -350,8 +370,15 @@ int main()
 //            modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 //            modelTemp = glm::translate(modelTemp, glm::vec3(1.0f, 0.0f, 0.0f));
             modelMatrices[i] = modelTemp;
-            lightingShader.setMat4("model", modelMatrices[i]);
-            rock.Draw(lightingShader);
+
+            assignPickingId(&pickingId, (*pickingShader));
+            if (!left_button) {
+                lightingShader.setMat4("model", modelMatrices[i]);
+                rock.Draw(lightingShader);
+            }
+            else {
+                rock.Draw((*pickingShader));
+            }
         }
 
 
@@ -454,6 +481,14 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         cout << "stop wireframe\n";
+    }
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)){
+        if (left_button) {
+            left_button = false;
+        }
+        else {
+            left_button = true;
+        }
     }
 }
 
@@ -659,6 +694,17 @@ unsigned int loadTexture(char const * path)
     return textureID;
 }
 
+void assignPickingId(int *picking_id, Shader pickingShader)
+{
+    int r = ((*picking_id) & 0x000000FF) >>  0;
+    int g = ((*picking_id) & 0x0000FF00) >>  8;
+    int b = ((*picking_id) & 0x00FF0000) >> 16;
+
+    pickingShader.setVec4("PickingColor", glm::vec4(r/255.0f, g/255.0f, b/255.0f, 1.0f));
+
+    (*picking_id)++;
+}
+
 unsigned int sphereVAO = 0;
 unsigned int indexCount;
 void renderSphere()
@@ -751,6 +797,7 @@ void renderSphere()
     }
 
     glBindVertexArray(sphereVAO);
+    assignPickingId(&pickingId, (*pickingShader));
     glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0);
 }
 
