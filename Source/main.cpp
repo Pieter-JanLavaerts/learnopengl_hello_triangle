@@ -23,9 +23,10 @@ unsigned int loadTexture(const char *path);
 void renderSphere();
 
 
+
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 900;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -39,36 +40,6 @@ float lastFrame = 0.0f;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-//Display list
-GLuint renderBoxesDisplay;
-
-/* Render boxes */
-void renderBoxes(glm::vec3 cubePositions[], Shader lightingShader)
-{
-    for (unsigned int i = 0; i < 10; i++)
-    {
-        //calculate the model matrix for each object and pass it to the shader before drawing
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, cubePositions[i]);
-        float angle = 30.0f * (i+1) * (glfwGetTime()+0.5*glm::tan(glfwGetTime()+i));
-        //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        lightingShader.setMat4("model", model);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-}
-
-/* Create display list to render boxes and initialize state*/
-static void init(glm::vec3 cubePositions[], Shader lightingShader)
-{
-    renderBoxesDisplay = glGenLists(1);
-    glNewList(renderBoxesDisplay, GL_COMPILE);
-    renderBoxes(cubePositions, lightingShader);
-    glEndList();
-
-    glShadeModel(GL_FLAT);
-}
-
 int main()
 {
     // glfw: initialize and configure
@@ -81,7 +52,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", glfwGetPrimaryMonitor(), NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -113,6 +84,9 @@ int main()
     //Loading our models
     Model rock("../Models/rock/rock.obj");
     Model planet("../Models/planet/planet.obj");
+
+
+
 
     unsigned int amount = 1000;
     glm::mat4* modelMatrices;
@@ -274,9 +248,6 @@ int main()
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
 
-    init(cubePositions, lightingShader);
-    cout << renderBoxesDisplay;
-
 //	Sphere sphere = Sphere();
 
     // render loop
@@ -350,22 +321,33 @@ int main()
 
         //render boxes
         glBindVertexArray(cubeVAO);
-        init(cubePositions, lightingShader);
-        glCallList(renderBoxesDisplay);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            //calculate the model matrix for each object and pass it to the shader before drawing
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 30.0f * (i+1) * (glfwGetTime()+0.5*glm::tan(glfwGetTime()+i));
+            //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            lightingShader.setMat4("model", model);
 
+//            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // draw planet
-        model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+//        modelPlanet = glm::translate(modelPlanet, glm::vec3(-0.1f, 0.0f, 0.0f));
+        glm::mat4 modelPlanet = glm::mat4(1.0f);
+        modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.5f) , glm::vec3(0.0f, 1.0f, 0.0f));
+        modelPlanet = glm::translate(modelPlanet, glm::vec3(20.0f, 0.0f, 0.0f));
         //model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
-        lightingShader.setMat4("model", model);
-        //planet.Draw(lightingShader);
+        lightingShader.setMat4("model", modelPlanet);
+        planet.Draw(lightingShader);
 
         // draw static meteorites
         for (unsigned int i = 0; i < amount; i++)
         {
             glm::mat4 modelTemp = modelMatrices[i];
 //            modelTemp = glm::rotate(modelTemp, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-//            modelTemp = glm::translate(modelTemp, glm::vec3(1.0f, 1.0f, 1.0f));
+//            modelTemp = glm::translate(modelTemp, glm::vec3(1.0f, 0.0f, 0.0f));
             modelMatrices[i] = modelTemp;
             lightingShader.setMat4("model", modelMatrices[i]);
             rock.Draw(lightingShader);
@@ -402,7 +384,7 @@ int main()
 //        pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model,  pointLightPositions[0]);
+        model = glm::translate(model, glm::vec3(0.0f));
         lampShader.setMat4("model", model);
         renderSphere();
 
