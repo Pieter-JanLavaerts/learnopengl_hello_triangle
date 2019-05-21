@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
 #include <glad/glad.h>
@@ -18,13 +19,17 @@ using namespace std;
 
 #include <jsoncpp/json/json.h>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
 void processInput(GLFWwindow *window);
+
 unsigned int loadTexture(const char *path);
-void renderSphere();
+
 int assignPickingId(int *picking_id, Shader pickingShader);
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
 
 // settings
 const unsigned int SCR_WIDTH = 1600;
@@ -36,7 +41,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
-float deltaTime = 0.0f;	// time between current frame and last frame
+float deltaTime = 0.0f;    // time between current frame and last frame
 float lastFrame = 0.0f;
 
 // lighting
@@ -53,13 +58,10 @@ bool isPointLightOn = true;
 bool isFlashLightOn = true;
 
 
-int main()
-{
+int main() {
     ifstream i("../Models/planet.json", ifstream::binary);
     Json::Value planeet;
     i >> planeet;
-
-
 
     // glfw: initialize and configure
     // ------------------------------
@@ -71,9 +73,8 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", glfwGetPrimaryMonitor(), NULL);
-    if (window == NULL)
-    {
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", glfwGetPrimaryMonitor(), NULL);
+    if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -86,8 +87,7 @@ int main()
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
@@ -97,9 +97,7 @@ int main()
 
 
     //build and compile our shaders
-    //Shader lightingShader("Shaders/lighting.vs", "Shaders/lighting.fs");
     Shader lightingShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
-    Shader smoothShader("../Shaders/lighting.vs", "../Shaders/lighting.fs");
     Shader flatShader("../Shaders/flat.vs", "../Shaders/flat.fs");
     Shader lampShader("../Shaders/lamp.vs", "../Shaders/lamp.fs");
     Shader pickingShader("../Shaders/lamp.vs", "../Shaders/picking.fs");
@@ -112,21 +110,20 @@ int main()
     Model planet("../Models/planet/planet.obj");
 
     unsigned int amount = 1000;
-    glm::mat4* modelMatrices;
+    glm::mat4 *modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(glfwGetTime()); // initialize random seed
     float radius = 50.0;
     float offset = 2.5f;
-    for (unsigned int i = 0; i < amount; i++)
-    {
+    for (unsigned int i = 0; i < amount; i++) {
         glm::mat4 model = glm::mat4(1.0f);
         // 1. translation: displace along circle with 'radius' in range [-offset, offset]
-        float angle = (float)i / (float)amount * 360.0f;
-        float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float angle = (float) i / (float) amount * 360.0f;
+        float displacement = (rand() % (int) (2 * offset * 100)) / 100.0f - offset;
         float x = sin(angle) * radius + displacement;
-        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        displacement = (rand() % (int) (2 * offset * 100)) / 100.0f - offset;
         float y = displacement * 0.4f; // keep height of asteroid field smaller compared to width of x and z
-        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        displacement = (rand() % (int) (2 * offset * 100)) / 100.0f - offset;
         float z = cos(angle) * radius + displacement;
         model = glm::translate(model, glm::vec3(x, y, z));
 
@@ -143,15 +140,15 @@ int main()
     }
 
     int amount2 = 1000;
-    glm::mat4* modelMatrices2;
+    glm::mat4 *modelMatrices2;
     int modelMatrices2Dist[amount2];
     modelMatrices2 = new glm::mat4[amount];
     srand(glfwGetTime()); // initialize random seed
-    for (unsigned int i = 0; i < amount2; i++)
-    {
+    for (unsigned int i = 0; i < amount2; i++) {
         glm::mat4 model = glm::mat4(1.0f);
         // 1. translation: displace along circle with 'radius' in range [-offset, offset]
-        model = glm::translate(model, glm::vec3((float) (rand() % 100 - 50), (float) (rand() % 100 - 50), -1.0f*i+((float)amount2/2)));
+        model = glm::translate(model, glm::vec3((float) (rand() % 100 - 50), (float) (rand() % 100 - 50),
+                                                -1.0f * i + ((float) amount2 / 2)));
 
         // 2. scale: Scale between 0.05 and 0.25f
         float scale = (rand() % 20) / 100.0f + 0.05;
@@ -163,110 +160,14 @@ int main()
 
         // 4. now add to list of matrices
         modelMatrices2[i] = model;
-        modelMatrices2Dist[i] = (-i+amount2/2);
+        modelMatrices2Dist[i] = (-i + amount2 / 2);
     }
 
-
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-            // positions          // normals           // texture coords
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-
-
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-    };
-
-    // world space positions of our cubes
-    glm::vec3 cubePositions[] = {
-            glm::vec3( 0.0f,  0.0f,  0.0f),
-            glm::vec3( 2.0f,  5.0f, -15.0f),
-            glm::vec3(-1.5f, -2.2f, -2.5f),
-            glm::vec3(-3.8f, -2.0f, -12.3f),
-            glm::vec3( 2.4f, -0.4f, -3.5f),
-            glm::vec3(-1.7f,  3.0f, -7.5f),
-            glm::vec3( 1.3f, -2.0f, -2.5f),
-            glm::vec3( 1.5f,  2.0f, -2.5f),
-            glm::vec3( 1.5f,  0.2f, -1.5f),
-            glm::vec3(-1.3f,  1.0f, -1.5f),
-            glm::vec3(-1.3f,  1.0f, 10.5f)
-    };
-
-    // positions of the point lights
-    glm::vec3 pointLightPositions[] = {
-            glm::vec3(1.2f, 1.0f, 2.0f)
-    };
-
-    //cube's vao and vbo
-    unsigned int VBO, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &VBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(cubeVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    //lighting vao (vbo stays the same)
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
 
     // load texture
     // ------------
     unsigned int diffuseMap = loadTexture("../Textures/container.jpg");
     unsigned int specularMap = loadTexture("../Textures/container_specular.jpg");
-    unsigned int moonMap = loadTexture("../Textures/moon.jpg");
-
 
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
@@ -277,8 +178,7 @@ int main()
 
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         //lucht is 0
         pickingId = 1;
 
@@ -299,12 +199,10 @@ int main()
         if (left_button) {
             currentShader = &pickingShader;
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        }
-        else if(isSmooth){
-            currentShader = &smoothShader;
+        } else if (isSmooth) {
+            currentShader = &lightingShader;
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        }
-        else{
+        } else {
             currentShader = &flatShader;
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         }
@@ -320,19 +218,17 @@ int main()
             lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
             lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
             lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-        }
-        else {
+        } else {
             lightingShader.setVec3("dirLight.ambient", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("dirLight.diffuse", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
         }
-        //
+        // pointLight
         if (isPointLightOn) {
             lightingShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
             lightingShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
             lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-        }
-        else {
+        } else {
             lightingShader.setVec3("pointLights[0].ambient", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("pointLights[0].diffuse", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("pointLights[0].specular", 0.0f, 0.0f, 0.0f);
@@ -343,12 +239,11 @@ int main()
         // spotLight
         lightingShader.setVec3("spotLight.position", camera.Position);
         lightingShader.setVec3("spotLight.direction", camera.Front);
-        if(isFlashLightOn) {
+        if (isFlashLightOn) {
             lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
             lightingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        }
-        else {
+        } else {
             lightingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("spotLight.diffuse", 0.0f, 0.0f, 0.0f);
             lightingShader.setVec3("spotLight.specular", 0.0f, 0.0f, 0.0f);
@@ -361,7 +256,8 @@ int main()
 
         currentShader->setVec3("viewPos", camera.Position);
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
+                                                100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
 
@@ -372,77 +268,60 @@ int main()
         //draw sun
         Sphere sun = Sphere(100, 100);
         model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(10.0f,10.0f,10.0f));
+        model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
         int sunId = assignPickingId(&pickingId, pickingShader);
         if (currentShader != &pickingShader) {
             if (isPointLightOn)
-            sun.Draw(lampShader, model, projection, view);
-        }
-        else {
+                sun.Draw(lampShader, model, projection, view);
+        } else {
             sun.Draw(pickingShader, model, projection, view);
         }
 
-        //moon
+        //planet and moon from file (alleen hier gebruikt om concept aan te tonen, als het voor meer dingen gebruikt zou worden zou het parsen uitgebreid moeten worden om met de meerdere mogelijkheden om te gaan
         Sphere moon = Sphere(2, 4);
         ifstream ifs("../inputfile.json");
         Json::Reader reader;
         Json::Value obj;
-        reader.parse(ifs, obj); // reader can also read strings
+        reader.parse(ifs, obj);
         int i = 0;
         bool containsUnreadData = true;
         while (containsUnreadData) {
-            if (obj[i]["end"] == "end"){
+            if (obj[i]["end"] == "end") {
                 containsUnreadData = false;
                 break;
             }
-            if (!obj[i]["variable"].empty())
-            {
-//                cout << obj[i]["variable"] << endl;
+            //We gaan er van uit dat er na de variabele meteen 10 variabelen komen in de juiste volgorde voor de rotate, translate en scale;
+            if (!obj[i]["variable"].empty()) {
                 model = glm::mat4(1.0f);
 
-                model = glm::rotate(model, ((float) glfwGetTime() * obj[i+1]["angle"].asFloat()),
-                                    glm::vec3(obj[i+2]["rotatex"].asFloat(), obj[i+3]["rotatey"].asFloat(),
-                                              obj[i+4]["rotatez"].asFloat()));
+                model = glm::rotate(model, ((float) glfwGetTime() * obj[i + 1]["angle"].asFloat()),
+                                    glm::vec3(obj[i + 2]["rotatex"].asFloat(), obj[i + 3]["rotatey"].asFloat(),
+                                              obj[i + 4]["rotatez"].asFloat()));
 
-                model = glm::translate(model, glm::vec3(obj[i+5]["translatex"].asFloat(),obj[i+6]["translatey"].asFloat(),obj[i+7]["translatez"].asFloat()));
-                model = glm::scale(model, glm::vec3(obj[i+8]["scalex"].asFloat(), obj[i+9]["scaley"].asFloat(),obj[i+10]["scalez"].asFloat()));
-
-//                cout <<  obj[i+1]["angle"];
-//                cout << endl;
-//                cout <<  obj[i+2]["rotatex"];
-//                cout << endl;
-//                cout <<  obj[i+3]["rotatey"];
-//                cout << endl;
-//                cout <<  obj[i+4]["rotatez"];
-//                cout << endl;
-//                cout <<  obj[i+5]["translatex"];
-//                cout << endl;
-//                cout <<  obj[i+6]["translatey"];
-//                cout << endl;
-//                cout <<  obj[i+7]["translatez"];
-//                cout << endl;
-//                cout <<  obj[i+8]["scalex"];
-//                cout << endl;
-//                cout <<  obj[i+9]["scaley"];
-//                cout << endl;
-//                cout <<  obj[i+10]["scalez"];
-//                cout << endl;
-//
-//                cout << endl;
+                model = glm::translate(model,
+                                       glm::vec3(obj[i + 5]["translatex"].asFloat(), obj[i + 6]["translatey"].asFloat(),
+                                                 obj[i + 7]["translatez"].asFloat()));
+                model = glm::scale(model, glm::vec3(obj[i + 8]["scalex"].asFloat(), obj[i + 9]["scaley"].asFloat(),
+                                                    obj[i + 10]["scalez"].asFloat()));
             }
             if (obj[i]["variable"] == "planet") {
                 // draw planet
                 planet.Draw(*currentShader, model, projection, view);
             }
-            if (!obj[i]["children"].empty())
-            {
+            //Als er meerdere kinderen zouden zijn zouden we de model van de parent ergens moeten opslaan zodat de child niet de model van de parent aanpast, maar hier maakt het niet uit omdat er maar 1 child is.
+            if (!obj[i]["children"].empty()) {
                 model = glm::rotate(model, ((float) glfwGetTime() * obj[i]["children"][1]["angle"].asFloat()),
-                                    glm::vec3(obj[i]["children"][2]["rotatex"].asFloat(), obj[i]["children"][3]["rotatey"].asFloat(),
+                                    glm::vec3(obj[i]["children"][2]["rotatex"].asFloat(),
+                                              obj[i]["children"][3]["rotatey"].asFloat(),
                                               obj[i]["children"][4]["rotatez"].asFloat()));
 
-                model = glm::translate(model, glm::vec3(obj[i]["children"][5]["translatex"].asFloat(),obj[i]["children"][6]["translatey"].asFloat(),obj[i]["children"][7]["translatez"].asFloat()));
-                model = glm::scale(model, glm::vec3(obj[i]["children"][8]["scalex"].asFloat(), obj[i]["children"][9]["scaley"].asFloat(),obj[i]["children"][10]["scalez"].asFloat()));
-                if (obj[i]["children"][0]["variable"] == "moon"){
+                model = glm::translate(model, glm::vec3(obj[i]["children"][5]["translatex"].asFloat(),
+                                                        obj[i]["children"][6]["translatey"].asFloat(),
+                                                        obj[i]["children"][7]["translatez"].asFloat()));
+                model = glm::scale(model, glm::vec3(obj[i]["children"][8]["scalex"].asFloat(),
+                                                    obj[i]["children"][9]["scaley"].asFloat(),
+                                                    obj[i]["children"][10]["scalez"].asFloat()));
+                if (obj[i]["children"][0]["variable"] == "moon") {
                     moon.Draw(lampShader, model, projection, view);
                 }
             }
@@ -451,54 +330,32 @@ int main()
 
 
 
-		// draw static meteorites
-		for (unsigned int i = 0; i < amount; i++)
-		{
-			glm::mat4 modelTemp = modelMatrices[i];
-			modelMatrices[i] = modelTemp;
+        // draw static meteorites
+        for (unsigned int i = 0; i < amount; i++) {
+            glm::mat4 modelTemp = modelMatrices[i];
+            modelMatrices[i] = modelTemp;
 
             assignPickingId(&pickingId, pickingShader);
             rock.Draw(*currentShader, modelMatrices[i], projection, view);
         }
 
         // draw flying meteorites
-        for (unsigned int i = 0; i < amount2; i++)
-        {
+        for (unsigned int i = 0; i < amount2; i++) {
             glm::mat4 modelTemp = modelMatrices2[i];
             modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, 1.0f));
             int dist = modelMatrices2Dist[i];
             dist += 1;
 
-            if (dist > amount2/2){
-                for (int j = 0; j < amount2; j++){
+            if (dist > amount2 / 2) {
+                for (int j = 0; j < amount2; j++) {
                     modelTemp = glm::translate(modelTemp, glm::vec3(0.0f, 0.0f, -1.0f));
                 }
-                dist = -amount2/2;
+                dist = -amount2 / 2;
             }
             modelMatrices2Dist[i] = dist;
             modelMatrices2[i] = modelTemp;
             rock.Draw(*currentShader, modelMatrices2[i], projection, view);
         }
-
-		//moon
-//		model = glm::mat4(1.0f);
-//        model = glm::rotate(model, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
-//        model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
-//        model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-//        model = glm::rotate(model, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-//        model = glm::translate(model, glm::vec3(4.0f, -4.0f, 0.0f));
-//        model  = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-
-
-
-
-//        assignPickingId(&pickingId, pickingShader);
-//		if (currentShader != &pickingShader) {
-//			moon.Draw(lampShader, model, projection, view);
-//		}
-//		else {
-//			moon.Draw(*currentShader, model, projection, view);
-//		}
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -518,31 +375,30 @@ int main()
             // Ultra-mega-over slow too, even for 1 pixel,
             // because the framebuffer is on the GPU.
             unsigned char data[4];
-            glReadPixels(1366/2, 768/2,1,1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glReadPixels(1366 / 2, 768 / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
             int pickedID =
                     data[0] +
                     data[1] * 256 +
-                    data[2] * 256*256;
+                    data[2] * 256 * 256;
 
             cout << "Picked id: " << pickedID << endl;
 
-			//if clicked something
-			if (pickedID < pickingId) {
-				sunId = 1;
-				if (pickedID == sunId) {
-				    cout << "picked sun" << endl;
-					if (isPointLightOn) {
-						isPointLightOn = false;
-					}
-					else {
-						isPointLightOn = true;
-					}
-				}
-				left_button = false;
-			}
-		}
-	}
+            //if clicked something
+            if (pickedID < pickingId) {
+                sunId = 1;
+                if (pickedID == sunId) {
+                    cout << "picked sun" << endl;
+                    if (isPointLightOn) {
+                        isPointLightOn = false;
+                    } else {
+                        isPointLightOn = true;
+                    }
+                }
+                left_button = false;
+            }
+        }
+    }
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
@@ -555,8 +411,7 @@ int main()
     return 0;
 }
 
-void printGlmVec3(glm::vec3 vec)
-{
+void printGlmVec3(glm::vec3 vec) {
     std::cout <<
               std::to_string(vec.x) <<
               std::to_string(vec.y) <<
@@ -566,8 +421,7 @@ void printGlmVec3(glm::vec3 vec)
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
+void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -621,13 +475,11 @@ void processInput(GLFWwindow *window)
 
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         if (left_button) {
             left_button = false;
-        }
-        else {
+        } else {
             left_button = true;
         }
     }
@@ -635,10 +487,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 
 //glfw: whenever the mouse move, this calback is called
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    if (firstMouse)
-    {
+void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+    if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;
@@ -655,22 +505,19 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
 
-unsigned int loadTexture(char const * path)
-{
+unsigned int loadTexture(char const *path) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
+    if (data) {
         GLenum format;
         if (nrComponents == 1)
             format = GL_RED;
@@ -689,9 +536,7 @@ unsigned int loadTexture(char const * path)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);
-    }
-    else
-    {
+    } else {
         std::cout << "Texture failed to load at path: " << path << std::endl;
         stbi_image_free(data);
     }
@@ -699,16 +544,15 @@ unsigned int loadTexture(char const * path)
     return textureID;
 }
 
-int assignPickingId(int *picking_id, Shader pickingShader)
-{
-    int r = ((*picking_id) & 0x000000FF) >>  0;
-    int g = ((*picking_id) & 0x0000FF00) >>  8;
+int assignPickingId(int *picking_id, Shader pickingShader) {
+    int r = ((*picking_id) & 0x000000FF) >> 0;
+    int g = ((*picking_id) & 0x0000FF00) >> 8;
     int b = ((*picking_id) & 0x00FF0000) >> 16;
 
-    pickingShader.setVec4("PickingColor", glm::vec4(r/255.0f, g/255.0f, b/255.0f, 1.0f));
+    pickingShader.setVec4("PickingColor", glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f));
 
     (*picking_id)++;
 
-    return (*picking_id)-1;
+    return (*picking_id) - 1;
 }
 
