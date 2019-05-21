@@ -60,8 +60,11 @@ void Sphere::generateVAO()
 	glBindVertexArray(0);
 }
 
-Sphere::Sphere()
+Sphere::Sphere(int stacks, int slices)
 {
+	Stacks = stacks;
+	Slices = slices;
+
 	calculateVertices();
 	calculateIndices();
 	generateVAO();
