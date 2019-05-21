@@ -382,6 +382,8 @@ int main()
             sun.Draw(pickingShader, model, projection, view);
         }
 
+	//moon
+	Sphere moon = Sphere(2, 4);
         ifstream ifs("../inputfile.json");
         Json::Reader reader;
         Json::Value obj;
