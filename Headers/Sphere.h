@@ -13,7 +13,7 @@ const double PI=3.1415926535897;
 class Sphere
 {
 public:
-	Sphere();
+	Sphere(int stacks, int slices);
 	void Draw(Shader shader, glm::mat4 projection, glm::mat4 view, glm::mat4 model);
 
 private:
@@ -21,8 +21,8 @@ private:
 	void calculateVertices();
 	void calculateIndices();
 	void generateVAO();
-	const int Stacks = 100;
-	const int Slices = 100;
+	int Stacks;
+	int Slices;
 	const float Radius = 1;
 	std::vector<glm::vec3> vertices;
 	std::vector<int> indices;
