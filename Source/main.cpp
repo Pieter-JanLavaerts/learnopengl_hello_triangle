@@ -397,7 +397,7 @@ int main()
             }
             if (!obj[i]["variable"].empty())
             {
-                cout << obj[i]["variable"] << endl;
+//                cout << obj[i]["variable"] << endl;
                 model = glm::mat4(1.0f);
 
                 model = glm::rotate(model, ((float) glfwGetTime() * obj[i+1]["angle"].asFloat()),
@@ -407,38 +407,35 @@ int main()
                 model = glm::translate(model, glm::vec3(obj[i+5]["translatex"].asFloat(),obj[i+6]["translatey"].asFloat(),obj[i+7]["translatez"].asFloat()));
                 model = glm::scale(model, glm::vec3(obj[i+8]["scalex"].asFloat(), obj[i+9]["scaley"].asFloat(),obj[i+10]["scalez"].asFloat()));
 
-                cout <<  obj[i+1]["angle"];
-                cout << endl;
-                cout <<  obj[i+2]["rotatex"];
-                cout << endl;
-                cout <<  obj[i+3]["rotatey"];
-                cout << endl;
-                cout <<  obj[i+4]["rotatez"];
-                cout << endl;
-                cout <<  obj[i+5]["translatex"];
-                cout << endl;
-                cout <<  obj[i+6]["translatey"];
-                cout << endl;
-                cout <<  obj[i+7]["translatez"];
-                cout << endl;
-                cout <<  obj[i+8]["scalex"];
-                cout << endl;
-                cout <<  obj[i+9]["scaley"];
-                cout << endl;
-                cout <<  obj[i+10]["scalez"];
-                cout << endl;
-
-                cout << endl;
+//                cout <<  obj[i+1]["angle"];
+//                cout << endl;
+//                cout <<  obj[i+2]["rotatex"];
+//                cout << endl;
+//                cout <<  obj[i+3]["rotatey"];
+//                cout << endl;
+//                cout <<  obj[i+4]["rotatez"];
+//                cout << endl;
+//                cout <<  obj[i+5]["translatex"];
+//                cout << endl;
+//                cout <<  obj[i+6]["translatey"];
+//                cout << endl;
+//                cout <<  obj[i+7]["translatez"];
+//                cout << endl;
+//                cout <<  obj[i+8]["scalex"];
+//                cout << endl;
+//                cout <<  obj[i+9]["scaley"];
+//                cout << endl;
+//                cout <<  obj[i+10]["scalez"];
+//                cout << endl;
+//
+//                cout << endl;
             }
             if (obj[i]["variable"] == "planet") {
                 // draw planet
-                cout << "draw planet" << endl;
                 planet.Draw(*currentShader, model, projection, view);
             }
             if (!obj[i]["children"].empty())
             {
-                cout << obj[i]["children"][1]["angle"].asFloat();
-                cout << endl;
                 model = glm::rotate(model, ((float) glfwGetTime() * obj[i]["children"][1]["angle"].asFloat()),
                                     glm::vec3(obj[i]["children"][2]["rotatex"].asFloat(), obj[i]["children"][3]["rotatey"].asFloat(),
                                               obj[i]["children"][4]["rotatez"].asFloat()));
