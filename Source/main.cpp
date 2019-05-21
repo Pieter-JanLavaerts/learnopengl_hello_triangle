@@ -368,13 +368,12 @@ int main()
         }
 
         // draw planet
-        glm::mat4 modelPlanet = glm::mat4(1.0f);
-		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelPlanet = glm::translate(modelPlanet, glm::vec3(-20.0f, 0.0f, 0.0f));
-		modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
+        model = glm::mat4(1.0f);
+        model = glm::rotate(model, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
+        model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-		int bla = assignPickingId(&pickingId, pickingShader);
-		planet.Draw(*currentShader, modelPlanet, projection, view);
+		planet.Draw(*currentShader, model, projection, view);
 
 
 
@@ -409,19 +408,19 @@ int main()
 
 		Sphere moon = Sphere();
 		//moon
-		modelPlanet = glm::mat4(1.0f);
-		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelPlanet = glm::translate(modelPlanet, glm::vec3(-20.0f, 0.0f, 0.0f));
-		modelPlanet = glm::rotate(modelPlanet, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-		modelPlanet = glm::translate(modelPlanet, glm::vec3(2.0f, -2.0f, 0.0f));
-		modelPlanet  = glm::scale(modelPlanet, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::mat4(1.0f);
+        model = glm::rotate(model, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(2.0f, -2.0f, 0.0f));
+        model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
 		assignPickingId(&pickingId, pickingShader);
 		if (currentShader != &pickingShader) {
-			moon.Draw(lampShader, modelPlanet, projection, view);
+			moon.Draw(lampShader, model, projection, view);
 		}
 		else {
-			moon.Draw(*currentShader, modelPlanet, projection, view);
+			moon.Draw(*currentShader, model, projection, view);
 		}
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
