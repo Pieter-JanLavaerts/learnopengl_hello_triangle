@@ -1,6 +1,5 @@
 #include <iostream>
-#include <json/value.h>
-
+#include <fstream>
 using namespace std;
 
 #include <glad/glad.h>
@@ -16,6 +15,8 @@ using namespace std;
 #include "../Headers/Model.h"
 #include "../Headers/Sphere.h"
 #include "camera.h"
+
+#include <jsoncpp/json/json.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -57,6 +58,8 @@ int main()
 	ifstream i("../Models/planet.json", ifstream::binary);
 	Json::Value planeet;
 	i >> planeet;
+
+
 
 	// glfw: initialize and configure
 	// ------------------------------
@@ -268,9 +271,21 @@ int main()
     lightingShader.setInt("material.diffuse", 0);
 	lightingShader.setInt("material.specular", 1);
 
+    ifstream ifs("../alice.json");
+    Json::Reader reader;
+    Json::Value obj;
+    reader.parse(ifs, obj); // reader can also read strings
+    cout << "Book: " << obj["book"].asString() << endl;
+    cout << "Year: " << obj["year"].asUInt() << endl;
+    const Json::Value& characters = obj["characters"]; // array of characters
+    for (int i = 0; i < characters.size(); i++){
+        cout << "    name: " << characters[i]["name"].asString();
+        cout << " chapter: " << characters[i]["chapter"].asUInt();
+        cout << endl;
+    }
 
-	glShadeModel(GL_FLAT);
-	// render loop
+
+    // render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
