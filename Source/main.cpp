@@ -382,8 +382,8 @@ int main()
             sun.Draw(pickingShader, model, projection, view);
         }
 
-	//moon
-	Sphere moon = Sphere(2, 4);
+        //moon
+        Sphere moon = Sphere(2, 4);
         ifstream ifs("../inputfile.json");
         Json::Reader reader;
         Json::Value obj;
@@ -495,13 +495,13 @@ int main()
 
 
 
-        assignPickingId(&pickingId, pickingShader);
-		if (currentShader != &pickingShader) {
-			moon.Draw(lampShader, model, projection, view);
-		}
-		else {
-			moon.Draw(*currentShader, model, projection, view);
-		}
+//        assignPickingId(&pickingId, pickingShader);
+//		if (currentShader != &pickingShader) {
+//			moon.Draw(lampShader, model, projection, view);
+//		}
+//		else {
+//			moon.Draw(*currentShader, model, projection, view);
+//		}
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
