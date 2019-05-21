@@ -16,6 +16,9 @@ using namespace std;
 #include "../Headers/Sphere.h"
 #include "camera.h"
 
+#include "../Headers/json.hpp"
+using json = nlohmann::json;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window);
@@ -53,6 +56,14 @@ bool isFlashLightOn = true;
 
 int main()
 {
+	ifstream i("../Models/planet.json");
+	json j;
+	if (i.is_open()) {
+		j = json::parse(i);
+	}
+	string a = j["filename"].get<string>();
+
+
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -452,8 +463,8 @@ int main()
 
 			//if clicked something
 			if (pickedID < pickingId) {
+				sunId = 1;
 				if (pickedID == sunId) {
-					cout << "Sun clicked!" << endl;
 					if (isPointLightOn) {
 						isPointLightOn = false;
 					}
