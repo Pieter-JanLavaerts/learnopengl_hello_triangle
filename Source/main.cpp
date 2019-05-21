@@ -16,9 +16,6 @@ using namespace std;
 #include "../Headers/Sphere.h"
 #include "camera.h"
 
-#include "../Headers/json.hpp"
-using json = nlohmann::json;
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window);
@@ -365,6 +362,9 @@ int main()
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
+
+
+
 
 		//draw sun
         Sphere sun = Sphere();
