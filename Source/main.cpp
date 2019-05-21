@@ -365,55 +365,90 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 
-        ifstream ifs("../inputfile.json");
-        Json::Reader reader;
-        Json::Value obj;
-        reader.parse(ifs, obj); // reader can also read strings
-//        cout << obj << endl;
-//        cout << "Book: " << obj[0]["variable"] << endl;
-//        cout << "Year: " << obj[0]<< endl;
-//        cout << obj.size() << endl;
-//        cout << obj[0].size() << endl;
-//        cout << obj[16] << endl;
-//        cout << obj[16][1].size() << endl;
-//        cout << obj[0]["variable"] << endl;
-//        cout << (obj[0]["variable"] == "planet");
-//        cout << endl;
-        if (obj[0]["variable"] == "planet") {
-            // draw planet
-            cout << "draw" << endl;
-            model = glm::mat4(1.0f);
-            if (obj[1]["function"] == "rotate") {
-                cout << "true" << endl;
-                cout << (obj[2]["angle"].asFloat()) << endl;
-                cout << (obj[3]["rotatex"].asFloat()) << endl;
-                cout << (obj[4]["rotatey"].asFloat()) << endl;
-                cout << (obj[5]["rotatez"].asFloat()) << endl;
 
-                model = glm::rotate(model, ((float) glfwGetTime() * obj[2]["angle"].asFloat()),
-                                    glm::vec3(obj[3]["rotatex"].asFloat(), obj[4]["rotatey"].asFloat(),
-                                              obj[5]["rotatez"].asFloat()));
-            }
-            model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
-            model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-
-            planet.Draw(*currentShader, model, projection, view);
-        }
 
 
 		//draw sun
         Sphere sun = Sphere();
+        Sphere moon = Sphere();
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(10.0f,10.0f,10.0f));
         int sunId = assignPickingId(&pickingId, pickingShader);
         if (currentShader != &pickingShader) {
+            if (isPointLightOn)
             sun.Draw(lampShader, model, projection, view);
         }
         else {
             sun.Draw(pickingShader, model, projection, view);
         }
 
+        ifstream ifs("../inputfile.json");
+        Json::Reader reader;
+        Json::Value obj;
+        reader.parse(ifs, obj); // reader can also read strings
+        int i = 0;
+        bool containsUnreadData = true;
+        while (containsUnreadData) {
+            if (obj[i]["end"] == "end"){
+                containsUnreadData = false;
+                break;
+            }
+            if (!obj[i]["variable"].empty())
+            {
+                cout << obj[i]["variable"] << endl;
+                model = glm::mat4(1.0f);
 
+                model = glm::rotate(model, ((float) glfwGetTime() * obj[i+1]["angle"].asFloat()),
+                                    glm::vec3(obj[i+2]["rotatex"].asFloat(), obj[i+3]["rotatey"].asFloat(),
+                                              obj[i+4]["rotatez"].asFloat()));
+
+                model = glm::translate(model, glm::vec3(obj[i+5]["translatex"].asFloat(),obj[i+6]["translatey"].asFloat(),obj[i+7]["translatez"].asFloat()));
+                model = glm::scale(model, glm::vec3(obj[i+8]["scalex"].asFloat(), obj[i+9]["scaley"].asFloat(),obj[i+10]["scalez"].asFloat()));
+
+                cout <<  obj[i+1]["angle"];
+                cout << endl;
+                cout <<  obj[i+2]["rotatex"];
+                cout << endl;
+                cout <<  obj[i+3]["rotatey"];
+                cout << endl;
+                cout <<  obj[i+4]["rotatez"];
+                cout << endl;
+                cout <<  obj[i+5]["translatex"];
+                cout << endl;
+                cout <<  obj[i+6]["translatey"];
+                cout << endl;
+                cout <<  obj[i+7]["translatez"];
+                cout << endl;
+                cout <<  obj[i+8]["scalex"];
+                cout << endl;
+                cout <<  obj[i+9]["scaley"];
+                cout << endl;
+                cout <<  obj[i+10]["scalez"];
+                cout << endl;
+
+                cout << endl;
+            }
+            if (obj[i]["variable"] == "planet") {
+                // draw planet
+                cout << "draw planet" << endl;
+                planet.Draw(*currentShader, model, projection, view);
+            }
+            if (!obj[i]["children"].empty())
+            {
+                cout << obj[i]["children"][1]["angle"].asFloat();
+                cout << endl;
+                model = glm::rotate(model, ((float) glfwGetTime() * obj[i]["children"][1]["angle"].asFloat()),
+                                    glm::vec3(obj[i]["children"][2]["rotatex"].asFloat(), obj[i]["children"][3]["rotatey"].asFloat(),
+                                              obj[i]["children"][4]["rotatez"].asFloat()));
+
+                model = glm::translate(model, glm::vec3(obj[i]["children"][5]["translatex"].asFloat(),obj[i]["children"][6]["translatey"].asFloat(),obj[i]["children"][7]["translatez"].asFloat()));
+                model = glm::scale(model, glm::vec3(obj[i]["children"][8]["scalex"].asFloat(), obj[i]["children"][9]["scaley"].asFloat(),obj[i]["children"][10]["scalez"].asFloat()));
+                if (obj[i]["children"][0]["variable"] == "moon"){
+                    moon.Draw(lampShader, model, projection, view);
+                }
+            }
+            i += 1;
+        }
 
 
 
@@ -446,16 +481,19 @@ int main()
 			rock.Draw(*currentShader, modelMatrices2[i], projection, view);
 		}
 
-		Sphere moon = Sphere();
 		//moon
-		model = glm::mat4(1.0f);
-        model = glm::rotate(model, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(2.0f, -2.0f, 0.0f));
-        model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+//		model = glm::mat4(1.0f);
+//        model = glm::rotate(model, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+//        model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
+//        model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+//        model = glm::rotate(model, ((float)glfwGetTime()*1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
+//        model = glm::translate(model, glm::vec3(4.0f, -4.0f, 0.0f));
+//        model  = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
-		assignPickingId(&pickingId, pickingShader);
+
+
+
+        assignPickingId(&pickingId, pickingShader);
 		if (currentShader != &pickingShader) {
 			moon.Draw(lampShader, model, projection, view);
 		}
@@ -494,6 +532,7 @@ int main()
 			if (pickedID < pickingId) {
 				sunId = 1;
 				if (pickedID == sunId) {
+				    cout << "picked sun" << endl;
 					if (isPointLightOn) {
 						isPointLightOn = false;
 					}
