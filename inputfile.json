@@ -1,34 +1,38 @@
-{
-  "data":
+[
+  {"variable": "planet"},
+  {"function": "rotate"},
+  {"angle": 0.2},
+  {"rotatex": 0.0},
+  {"rotatey": 1.0},
+  {"rotatez": 0.0},
+  {"function": "translate"},
+  {"translatex": "-2.0f"},
+  {"translatey": "0.0f"},
+  {"translatez": "0.0f"},
+  {"function": "scale"},
+  {"scalex": "0.5f"},
+  {"scaley": "0.5f"},
+  {"scalez": "0.5f"},
+  {"function": "draw"},
+  {"shader": "current"},
+  {"children":
   [
-    {
-      "variable": "planet",
-      "angle": "0.2f",
-      "rotatex": "0.0f",
-      "rotatey": "1.0f",
-      "rotatez": "0.0f",
-      "translatex": "-2.0f",
-      "translatey": "0.0f",
-      "translatez": "0.0f",
-      "scalex": "0.5f",
-      "scaley": "0.5f",
-      "scalez": "0.5f",
-      "shader": "current",
-      "children":
-      {
-        "variable": "moon",
-        "angle": "1.0f",
-        "rotatex": "1.0f",
-        "rotatey": "1.0f",
-        "rotatez": "0.0f",
-        "translatex": "2.0f",
-        "translatey": "-2.0f",
-        "translatez": "0.0f",
-        "scalex": "0.5f",
-        "scaley": "0.5f",
-        "scalez": "0.5f",
-        "shader": "lamp"
-      }
-    }
+    {"variable": "moon"},
+    {"function": "rotate"},
+    {"angle": "1.0f"},
+    {"rotatex": "1.0f"},
+    {"rotatey": "1.0f"},
+    {"rotatez": "0.0f"},
+    {"function": "translate"},
+    {"translatex": "2.0f"},
+    {"translatey": "-2.0f"},
+    {"translatez": "0.0f"},
+    {"function": "scale"},
+    {"scalex": "0.5f"},
+    {"scaley": "0.5f"},
+    {"scalez": "0.5f"},
+    {"function": "draw"},
+    {"shader": "lamp"}
   ]
-}
+  }
+]

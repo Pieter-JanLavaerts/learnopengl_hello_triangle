@@ -271,18 +271,8 @@ int main()
     lightingShader.setInt("material.diffuse", 0);
 	lightingShader.setInt("material.specular", 1);
 
-    ifstream ifs("../alice.json");
-    Json::Reader reader;
-    Json::Value obj;
-    reader.parse(ifs, obj); // reader can also read strings
-    cout << "Book: " << obj["book"].asString() << endl;
-    cout << "Year: " << obj["year"].asUInt() << endl;
-    const Json::Value& characters = obj["characters"]; // array of characters
-    for (int i = 0; i < characters.size(); i++){
-        cout << "    name: " << characters[i]["name"].asString();
-        cout << " chapter: " << characters[i]["chapter"].asUInt();
-        cout << endl;
-    }
+
+
 
 
     // render loop
@@ -375,7 +365,40 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 
+        ifstream ifs("../inputfile.json");
+        Json::Reader reader;
+        Json::Value obj;
+        reader.parse(ifs, obj); // reader can also read strings
+//        cout << obj << endl;
+//        cout << "Book: " << obj[0]["variable"] << endl;
+//        cout << "Year: " << obj[0]<< endl;
+//        cout << obj.size() << endl;
+//        cout << obj[0].size() << endl;
+//        cout << obj[16] << endl;
+//        cout << obj[16][1].size() << endl;
+//        cout << obj[0]["variable"] << endl;
+//        cout << (obj[0]["variable"] == "planet");
+//        cout << endl;
+        if (obj[0]["variable"] == "planet") {
+            // draw planet
+            cout << "draw" << endl;
+            model = glm::mat4(1.0f);
+            if (obj[1]["function"] == "rotate") {
+                cout << "true" << endl;
+                cout << (obj[2]["angle"].asFloat()) << endl;
+                cout << (obj[3]["rotatex"].asFloat()) << endl;
+                cout << (obj[4]["rotatey"].asFloat()) << endl;
+                cout << (obj[5]["rotatez"].asFloat()) << endl;
 
+                model = glm::rotate(model, ((float) glfwGetTime() * obj[2]["angle"].asFloat()),
+                                    glm::vec3(obj[3]["rotatex"].asFloat(), obj[4]["rotatey"].asFloat(),
+                                              obj[5]["rotatez"].asFloat()));
+            }
+            model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
+            model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+
+            planet.Draw(*currentShader, model, projection, view);
+        }
 
 
 		//draw sun
@@ -390,13 +413,7 @@ int main()
             sun.Draw(pickingShader, model, projection, view);
         }
 
-        // draw planet
-        model = glm::mat4(1.0f);
-        model = glm::rotate(model, ((float)glfwGetTime()*0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(-20.0f, 0.0f, 0.0f));
-        model  = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-		planet.Draw(*currentShader, model, projection, view);
 
 
 
